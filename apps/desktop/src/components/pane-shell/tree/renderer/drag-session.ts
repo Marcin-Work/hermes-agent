@@ -155,17 +155,13 @@ const sameHint = (a: DropHint | null, b: DropHint | null) =>
   (a?.groupIds?.length ?? 0) === (b?.groupIds?.length ?? 0) &&
   (a?.groupIds ?? []).every((id, i) => b?.groupIds?.[i] === id)
 
-/** Double-tap detection for drag handles. Pane handles preventDefault
- *  pointerdown, which suppresses native `dblclick` — so rapid same-handle
- *  taps are detected here instead. */
-const DOUBLE_TAP_MS = 400
-let lastTap: { key: string; time: number } | null = null
-
-export interface DoubleTapContext {
-  /** Two sub-threshold releases with the same key within DOUBLE_TAP_MS. */
-  key: string
-  onDoubleTap: () => void
-}
+// Drag handles carry NO double-tap. They once synthesized one (they
+// preventDefault pointerdown, which suppresses native `dblclick`), and its only
+// consumer was the zone strip's hide — a destructive, persisted action on a
+// gesture that also fired from ordinary double-clicks on a tab. Nothing else
+// ever wanted it, so the detector went with it rather than staying as a loaded
+// gun in shared machinery. Trackpad double-tap, a genuinely separate concern,
+// lives in `@/lib/trackpad-gestures`.
 
 // ---------------------------------------------------------------------------
 // The generic drag session (machinery) — resolvers plug in below / elsewhere.
@@ -186,7 +182,6 @@ export interface DragSessionSpec {
   onEnd?(): void
   /** Sub-threshold release = a click on the handle. */
   onTap?(): void
-  double?: DoubleTapContext
   /** Floating chip following the pointer — for drags whose source doesn't
    *  stay visibly "held" (a sidebar row, unlike a dimmed tab). See
    *  `@/lib/drag-ghost`. */
@@ -218,10 +213,10 @@ function suppressDragClick(committed: boolean) {
 
 /**
  * Begin a drag session from a handle's pointerdown. A sub-threshold release
- * is a click (`onTap` / `double.onDoubleTap`); past the threshold the spec's
- * resolver owns targeting and the machinery owns everything else. Esc aborts
- * instantly: the session registers as the TOP escape layer, tears down
- * synchronously, and nothing commits.
+ * is a click (`onTap`); past the threshold the spec's resolver owns targeting
+ * and the machinery owns everything else. Esc aborts instantly: the session
+ * registers as the TOP escape layer, tears down synchronously, and nothing
+ * commits.
  */
 export function startDragSession(e: ReactPointerEvent<HTMLElement>, spec: DragSessionSpec) {
   if (e.button !== 0) {
@@ -365,15 +360,7 @@ export function startDragSession(e: ReactPointerEvent<HTMLElement>, spec: DragSe
         spec.onCommit($dropHint.get())
       }
     } else if (commit) {
-      const now = Date.now()
-
-      if (spec.double && lastTap?.key === spec.double.key && now - lastTap.time < DOUBLE_TAP_MS) {
-        lastTap = null
-        spec.double.onDoubleTap()
-      } else {
-        lastTap = spec.double ? { key: spec.double.key, time: now } : null
-        spec.onTap?.()
-      }
+      spec.onTap?.()
     }
 
     spec.onEnd?.()
@@ -418,14 +405,13 @@ const TEAR_OFF_SLACK_PX = 18
 
 /**
  * Begin a pane drag from any handle. A sub-threshold release is a click
- * (`onTap`, used to activate tabs; rapid repeat fires `double.onDoubleTap`
- * instead). With a `reorder` context (tab drags), movement inside the strip
- * targets an insertion slot — the strip renders a divider at it, NOTHING
- * moves until release (placement-on-release, like every other drop); tearing
- * away from the strip converts the drag into a zone move. Zone mode: zones
- * light up, the target's tab strip stacks at its divider slot, Shift extends
- * the highlight range, release drops into the ClosestCenter primary zone.
- * Esc aborts either mode.
+ * (`onTap`, used to activate tabs). With a `reorder` context (tab drags),
+ * movement inside the strip targets an insertion slot — the strip renders a
+ * divider at it, NOTHING moves until release (placement-on-release, like every
+ * other drop); tearing away from the strip converts the drag into a zone move.
+ * Zone mode: zones light up, the target's tab strip stacks at its divider slot,
+ * Shift extends the highlight range, release drops into the ClosestCenter
+ * primary zone. Esc aborts either mode.
  *
  * `ghostLabel` opts into the pointer-following chip (`@/lib/drag-ghost`) — the
  * same "what am I holding" affordance sessions use. The in-strip dim only
@@ -437,7 +423,6 @@ export function startPaneDrag(
   e: ReactPointerEvent<HTMLElement>,
   onTap?: () => void,
   reorder?: ReorderContext,
-  double?: DoubleTapContext,
   ghostLabel?: string,
   /** Multi-tab selection riding this drag (strip order, includes `paneId`).
    *  The whole block moves/reorders together; `paneId` stays the pressed tab
@@ -504,7 +489,6 @@ export function startPaneDrag(
     Boolean(reorder) && rectContains(reorderStrip().rect, x, y, TEAR_OFF_SLACK_PX)
 
   startDragSession(e, {
-    double,
     ghost: ghostLabel ? { label: ghostLabel } : undefined,
     onTap,
 
