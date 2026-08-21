@@ -276,7 +276,7 @@ export const en: Translations = {
       'view.toggleRightSidebar': 'Toggle file browser',
       'view.toggleReview': 'Toggle review pane',
       'view.toggleStatusbar': 'Toggle status bar',
-      'view.toggleTabStrip': 'Toggle tab strip',
+      'view.toggleTabStrip': 'Toggle tabs',
       'view.showFiles': 'Show file browser',
       'view.showBrowser': 'Open browser',
       'view.toggleHud': 'Toggle HUD mode',
@@ -2986,8 +2986,8 @@ export const en: Translations = {
   },
 
   zones: {
-    showTabStrip: 'Show tab strip',
-    hideTabStrip: 'Hide tab strip',
+    showTabStrip: 'Show tabs',
+    hideTabStrip: 'Hide tabs',
     showStripTab: title => `Show ${title}`,
     hideStripTab: title => `Hide ${title}`,
     lastTabKeptTitle: 'Last tab stays',

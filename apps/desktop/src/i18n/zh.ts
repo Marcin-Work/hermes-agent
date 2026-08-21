@@ -271,7 +271,7 @@ export const zh: Translations = {
       'view.toggleRightSidebar': '切换文件浏览器',
       'view.toggleReview': '切换审查面板',
       'view.toggleStatusbar': '切换状态栏',
-      'view.toggleTabStrip': '切换标签栏',
+      'view.toggleTabStrip': '切换标签',
       'view.showFiles': '显示文件浏览器',
       'view.showBrowser': '打开浏览器',
       'view.showTerminal': '显示终端',
@@ -3153,8 +3153,8 @@ export const zh: Translations = {
   },
 
   zones: {
-    showTabStrip: '显示标签栏',
-    hideTabStrip: '隐藏标签栏',
+    showTabStrip: '显示标签',
+    hideTabStrip: '隐藏标签',
     showStripTab: title => `显示 ${title}`,
     hideStripTab: title => `隐藏 ${title}`,
     lastTabKeptTitle: '保留最后一个标签',

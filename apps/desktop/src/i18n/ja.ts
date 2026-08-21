@@ -2641,8 +2641,8 @@ export const ja = defineLocale({
   },
 
   zones: {
-    showTabStrip: 'タブバーを表示',
-    hideTabStrip: 'タブバーを隠す',
+    showTabStrip: 'タブを表示',
+    hideTabStrip: 'タブを隠す',
     showStripTab: title => `${title} を表示`,
     hideStripTab: title => `${title} を隠す`,
     lastTabKeptTitle: '最後のタブは残ります',

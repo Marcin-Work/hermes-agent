@@ -327,7 +327,7 @@ registry.registerMany([
   }),
   paletteToggle({
     id: 'view.toggleTabStrip',
-    label: 'Toggle tab strip',
+    label: 'Toggle tabs',
     action: 'view.toggleTabStrip',
     icon: PanelTop,
     keywords: ['tab strip', 'tab bar', 'tabs', 'header', 'zone', 'hide', 'show', 'chrome'],

@@ -169,7 +169,9 @@ function ZoneMenu({
           key: 'zone-tabstrip',
           label: (
             <>
-              <span>{stripVisible ? t.zones.hideTabStrip : t.zones.showTabStrip}</span>
+              {/* The hint's `ml-auto` makes the label the row's flexible part,
+                  so without this it breaks mid-phrase before the menu widens. */}
+              <span className="whitespace-nowrap">{stripVisible ? t.zones.hideTabStrip : t.zones.showTabStrip}</span>
               {toggleHint && <span className="ml-auto pl-2 text-(--ui-text-quaternary)">{toggleHint}</span>}
             </>
           ),
